@@ -35,6 +35,7 @@ user -> softwareSystem "Uses to manage publishing content"
 # Container level relationships
 user -> webApplication "Visits publishing management website using" "HTTPS"
 webApplication -> singlePageApplication "Delivers to browser"
+user -> singlePageApplication "Add Learning Content / Controls Publishing Lifecycle"
 singlePageApplication -> apiApplication "Makes API calls to" "JSON/HTTPS"
 apiApplication -> database "Reads from and writes to" "Spring Data JPA"
 
