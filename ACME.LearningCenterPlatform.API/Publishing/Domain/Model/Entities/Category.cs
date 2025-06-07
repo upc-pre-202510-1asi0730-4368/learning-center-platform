@@ -1,3 +1,5 @@
+using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Commands;
+
 namespace ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Entities;
 
 /// <summary>
@@ -15,5 +17,9 @@ public class Category(string name)
     /// Initializes a new instance of the <see cref="Category"/> class with an empty name.
     /// </summary>
     public Category() : this(string.Empty) {}
+
+    public Category(CreateCategoryCommand command) : this(command.Name)
+    {
+    }
     
 }

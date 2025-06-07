@@ -1,3 +1,4 @@
+using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Commands;
 using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Entities;
 using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.ValueObjects;
 
@@ -104,5 +105,11 @@ public partial class Tutorial : IPublishable
             content.AddRange(Assets.Select(asset => 
                 new ContentItem(asset.Type.ToString(), asset.GetContent() as string ?? string.Empty)));
         return content;
+    }
+    
+    public void Handle(AddVideoAssetToTutorialCommand command)
+    {
+        if (command.TutorialId == Id) 
+            AddVideo(command.VideoUrl);
     }
 }
