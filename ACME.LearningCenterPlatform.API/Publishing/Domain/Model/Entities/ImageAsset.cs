@@ -2,7 +2,7 @@ using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.ValueObjects;
 
 namespace ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Entities;
 
-public class ImageAsset(EAssetType Type) : Asset(Type)
+public class ImageAsset(EAssetType type) : Asset(type)
 {
     public Uri? ImageUri { get;  }
 
