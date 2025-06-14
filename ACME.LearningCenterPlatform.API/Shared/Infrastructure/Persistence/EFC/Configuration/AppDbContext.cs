@@ -1,3 +1,4 @@
+using ACME.LearningCenterPlatform.API.Profiles.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Aggregates;
 using ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Entities;
 using ACME.LearningCenterPlatform.API.Publishing.Infrastructure.Persistence.EFC.Configuration.Extensions;
@@ -23,7 +24,10 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     {
         base.OnModelCreating(builder);
         
+        // Apply configurations for the Publishing bounded context
         builder.ApplyPublishingConfiguration();
+        // Apply configurations for the Profiles bounded context
+        builder.ApplyProfilesConfiguration();
         
         // Use snake case naming convention for the database
         builder.UseSnakeCaseNamingConvention();
