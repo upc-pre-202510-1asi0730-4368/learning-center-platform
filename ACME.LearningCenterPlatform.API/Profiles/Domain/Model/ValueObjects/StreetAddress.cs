@@ -17,4 +17,5 @@ public record StreetAddress(string Street, string Number, string City, string Po
     public StreetAddress(string street, string number, string city, string postalCode) : this(street, number, city, postalCode, string.Empty)
     {
     }
+    public string FullAddress => $"{Street} {Number}, {City}, {PostalCode}, {Country}".TrimEnd(',', ' ');
 }
