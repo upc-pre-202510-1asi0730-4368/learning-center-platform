@@ -1,3 +1,15 @@
+using ACME.LearningCenterPlatform.API.IAM.Application.Internal.CommandServices;
+using ACME.LearningCenterPlatform.API.IAM.Application.Internal.OutboundServices;
+using ACME.LearningCenterPlatform.API.IAM.Application.Internal.QueryServices;
+using ACME.LearningCenterPlatform.API.IAM.Domain.Repositories;
+using ACME.LearningCenterPlatform.API.IAM.Domain.Services;
+using ACME.LearningCenterPlatform.API.IAM.Infrastructure.Hashing.BCrypt.Services;
+using ACME.LearningCenterPlatform.API.IAM.Infrastructure.Persistence.EFC.Repositories;
+using ACME.LearningCenterPlatform.API.IAM.Infrastructure.Pipeline.Middleware.Extensions;
+using ACME.LearningCenterPlatform.API.IAM.Infrastructure.Tokens.JWT.Configuration;
+using ACME.LearningCenterPlatform.API.IAM.Infrastructure.Tokens.JWT.Services;
+using ACME.LearningCenterPlatform.API.IAM.Interfaces.ACL;
+using ACME.LearningCenterPlatform.API.IAM.Interfaces.ACL.Services;
 using ACME.LearningCenterPlatform.API.Profiles.Application.ACL;
 using ACME.LearningCenterPlatform.API.Profiles.Application.Internal.CommandServices;
 using ACME.LearningCenterPlatform.API.Profiles.Application.Internal.QueryServices;
@@ -59,6 +71,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add Swagger/OpenAPI support
 builder.Services.AddSwaggerGen(options =>
 {
+    // General API Information
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "ACME.LearningCenterPlatform.API",
@@ -76,7 +89,36 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://www.apache.org/licenses/LICENSE-2.0.html")
         },
     });
+    
+    // Enable Annotations for Swagger
     options.EnableAnnotations();
+    
+    // Add Bearer Authentication for Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    // Add Security Requirement for Swagger
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+    
 });
 
 // Dependency Injection
@@ -98,8 +140,22 @@ builder.Services.AddScoped<IProfileCommandService, ProfileCommandService>();
 builder.Services.AddScoped<IProfileQueryService, ProfileQueryService>();
 builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 
-builder.Services.AddScoped(typeof(ICommandPipelineBehavior<>), typeof(LoggingCommandBehavior<>));
+
+// IAM Bounded Context
+
+// TokenSettings Configuration
+
+builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IHashingService, HashingService>();
+builder.Services.AddScoped<IIamContextFacade, IamContextFacade>();
+
 // Add Mediator for CQRS
+builder.Services.AddScoped(typeof(ICommandPipelineBehavior<>), typeof(LoggingCommandBehavior<>));
 builder.Services.AddCortexMediator(
     configuration: builder.Configuration,
     handlerAssemblyMarkerTypes: new[] { typeof(Program) }, configure: options =>
@@ -128,6 +184,9 @@ if (app.Environment.IsDevelopment())
 
 // Apply CORS Policy
 app.UseCors("AllowAllPolicy");
+
+// Configure the IAM HTTP request pipeline.
+app.UseRequestAuthorization();
 
 app.UseHttpsRedirection();
 
