@@ -6,7 +6,7 @@ namespace ACME.LearningCenterPlatform.API.Publishing.Domain.Model.Aggregates;
 
 public partial class Tutorial : IPublishable
 {
-    public ICollection<Asset> Assets { get; }
+    public ICollection<Asset> Assets { get; } = new List<Asset>();
     public EPublishingStatus Status { get; protected set; }
 
     public bool Readable => HasReadableAssets;
@@ -15,7 +15,8 @@ public partial class Tutorial : IPublishable
 
     public bool HasReadableAssets => Assets.Any(asset => asset.Readable);
     public bool HasViewableAssets => Assets.Any(asset => asset.Viewable);
-    
+
+
     private bool HasAllAssetsWithStatus(EPublishingStatus status)
     {
         return Assets.All(asset => asset.Status == status);

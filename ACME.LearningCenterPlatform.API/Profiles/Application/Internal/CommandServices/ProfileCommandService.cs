@@ -20,6 +20,8 @@ public class ProfileCommandService(
             return profile;
         } catch (Exception ex)
         {
+            // Log the exception (not implemented here)
+            Console.WriteLine($"Error creating profile: {ex.Message}");
             return null;
         }
     }
